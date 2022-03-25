@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CorApi", "CorApi\CorApi.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Debugging", "Mono.Debugging\Mono.Debugging.csproj", "{90C99ADB-7D4B-4EB4-98C2-40BD1B14C7D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectToLaunch", "ProjectToLaunch\ProjectToLaunch.csproj", "{698141F1-2125-4739-9CFF-AFE33A8EAB86}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{90C99ADB-7D4B-4EB4-98C2-40BD1B14C7D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90C99ADB-7D4B-4EB4-98C2-40BD1B14C7D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90C99ADB-7D4B-4EB4-98C2-40BD1B14C7D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{698141F1-2125-4739-9CFF-AFE33A8EAB86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{698141F1-2125-4739-9CFF-AFE33A8EAB86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{698141F1-2125-4739-9CFF-AFE33A8EAB86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{698141F1-2125-4739-9CFF-AFE33A8EAB86}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
