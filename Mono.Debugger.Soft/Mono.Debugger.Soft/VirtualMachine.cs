@@ -5,6 +5,7 @@ using System.Net;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Mono.Debugger.Soft
 {
@@ -36,7 +37,7 @@ namespace Mono.Debugger.Soft
 		public StreamReader StandardOutput { get; set; }
 		public StreamReader StandardError { get; set; }
 
-		
+
 		public Process Process {
 			get {
 				ProcessWrapper pw = process as ProcessWrapper;
@@ -171,7 +172,7 @@ namespace Mono.Debugger.Soft
 
 		HashSet<ThreadMirror> threadsToInvalidate = new HashSet<ThreadMirror> ();
 		ThreadMirror[] threadCache;
-		
+
 		void InvalidateThreadAndFrameCaches () {
 			lock (threadsToInvalidate) {
 				foreach (var thread in threadsToInvalidate)
@@ -319,7 +320,7 @@ namespace Mono.Debugger.Soft
 		public void ClearAllBreakpoints () {
 			conn.ClearAllBreakpoints ();
 		}
-		
+
 		public void Disconnect () {
 			conn.Close ();
 		}
@@ -349,7 +350,7 @@ namespace Mono.Debugger.Soft
 				res [i] = GetType (ids [i]);
 			return res;
 		}
-		
+
 		internal void queue_event_set (EventSet es) {
 			lock (queue_monitor) {
 				queue.Enqueue (es);
@@ -737,7 +738,9 @@ namespace Mono.Debugger.Soft
 					return new ValueImpl { Type = (ElementType)ValueTypeId.VALUE_TYPE_ID_NULL, Objid = 0 };
 				duplicates.Add (v);
 
-				return new ValueImpl { Type = ElementType.ValueType, Klass = (v as StructMirror).Type.Id, Fields = EncodeFieldValues ((v as StructMirror).Fields, (v as StructMirror).Type.GetFields (), duplicates, 1) };
+				var vAsStruct = (StructMirror)v;
+				var fieldMirrorInfos = vAsStruct.Type.GetFields ().Where (x => !x.IsLiteral).ToArray ();
+				return new ValueImpl { Type = ElementType.ValueType, Klass = vAsStruct.Type.Id, Fields = EncodeFieldValues (vAsStruct.Fields, fieldMirrorInfos, duplicates, 1) };
 			} else if (v is PointerValue) {
 				PointerValue val = (PointerValue)v;
 				return new ValueImpl { Type = ElementType.Ptr, Klass = val.Type.Id, Value = val.Address };
@@ -762,7 +765,9 @@ namespace Mono.Debugger.Soft
 					return new ValueImpl { Type = (ElementType)ValueTypeId.VALUE_TYPE_ID_NULL, Objid = 0 };
 				duplicates.Add (v);
 
-				return new ValueImpl { Type = ElementType.ValueType, Klass = (v as StructMirror).Type.Id, Fields = EncodeFieldValues ((v as StructMirror).Fields, (v as StructMirror).Type.GetFields (), duplicates, len_fixed_size) };
+				var vAsStruct = (StructMirror)v;
+				var fieldMirrorInfos = vAsStruct.Type.GetFields ().Where (x => !x.IsLiteral).ToArray ();
+				return new ValueImpl { Type = ElementType.ValueType, Klass = (v as StructMirror).Type.Id, Fields = EncodeFieldValues ((v as StructMirror).Fields, fieldMirrorInfos, duplicates, len_fixed_size) };
 			} else if (v is PointerValue) {
 				PointerValue val = (PointerValue)v;
 				return new ValueImpl { Type = ElementType.Ptr, Klass = val.Type.Id, Value = val.Address };
@@ -796,7 +801,7 @@ namespace Mono.Debugger.Soft
     }
 
 	class EventHandler : MarshalByRefObject, IEventHandler
-	{		
+	{
 		VirtualMachine vm;
 
 		public EventHandler (VirtualMachine vm) {
@@ -879,7 +884,7 @@ namespace Mono.Debugger.Soft
 					break;
 				}
 			}
-			
+
 			if (l.Count > 0)
 				vm.queue_event_set (new EventSet (vm, suspend_policy, l.ToArray ()));
 		}
