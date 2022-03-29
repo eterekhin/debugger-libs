@@ -5,6 +5,7 @@ using System.Net;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Mono.Debugger.Soft
 {
@@ -730,14 +731,15 @@ namespace Mono.Debugger.Soft
 					return new ValueImpl { Value = val };
 			} else if (v is ObjectMirror) {
 				return new ValueImpl { Type = ElementType.Object, Objid = (v as ObjectMirror).Id };
-			} else if (v is StructMirror) {
+			} else if (v is StructMirror structMirror) {
 				if (duplicates == null)
 					duplicates = new List<Value> ();
 				if (duplicates.Contains (v))
 					return new ValueImpl { Type = (ElementType)ValueTypeId.VALUE_TYPE_ID_NULL, Objid = 0 };
 				duplicates.Add (v);
 
-				return new ValueImpl { Type = ElementType.ValueType, Klass = (v as StructMirror).Type.Id, Fields = EncodeFieldValues ((v as StructMirror).Fields, (v as StructMirror).Type.GetFields (), duplicates, 1) };
+				var fieldInfoMirrors = structMirror.Type.GetFields ().Where(x=>!x.IsLiteral).ToArray();
+				return new ValueImpl { Type = ElementType.ValueType, Klass = structMirror.Type.Id, Fields = EncodeFieldValues (structMirror.Fields, fieldInfoMirrors, duplicates, 1) };
 			} else if (v is PointerValue) {
 				PointerValue val = (PointerValue)v;
 				return new ValueImpl { Type = ElementType.Ptr, Klass = val.Type.Id, Value = val.Address };
@@ -755,14 +757,15 @@ namespace Mono.Debugger.Soft
 					return new ValueImpl { Value = val , FixedSize = len_fixed_size};
 			} else if (v is ObjectMirror) {
 				return new ValueImpl { Type = ElementType.Object, Objid = (v as ObjectMirror).Id };
-			} else if (v is StructMirror) {
+			} else if (v is StructMirror structMirror) {
 				if (duplicates == null)
 					duplicates = new List<Value> ();
 				if (duplicates.Contains (v))
 					return new ValueImpl { Type = (ElementType)ValueTypeId.VALUE_TYPE_ID_NULL, Objid = 0 };
 				duplicates.Add (v);
 
-				return new ValueImpl { Type = ElementType.ValueType, Klass = (v as StructMirror).Type.Id, Fields = EncodeFieldValues ((v as StructMirror).Fields, (v as StructMirror).Type.GetFields (), duplicates, len_fixed_size) };
+				var fieldInfoMirrors = structMirror.Type.GetFields ().Where(x=>!x.IsLiteral).ToArray();
+				return new ValueImpl { Type = ElementType.ValueType, Klass = structMirror.Type.Id, Fields = EncodeFieldValues (structMirror.Fields, fieldInfoMirrors, duplicates, 1) };
 			} else if (v is PointerValue) {
 				PointerValue val = (PointerValue)v;
 				return new ValueImpl { Type = ElementType.Ptr, Klass = val.Type.Id, Value = val.Address };
